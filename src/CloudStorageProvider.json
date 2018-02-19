@@ -1,0 +1,712 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.1.1",
+    "title": "Cloud Storage Provider API Definition",
+    "contact": {
+      "name": "Johannes Pillmann",
+      "url": "http://www.automat-project.eu",
+      "email": "johannes.pillmann@tu-dortmund.de"
+    }
+  },
+  "host": "cloud-storage.automat-project.eu",
+  "basePath": "/api",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "api_key": []
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Retrieve all users",
+        "description": "This functionalities provides a list of all users within this Cloud Storage Provider. This API call is not specified and may only be used by the Cloud Storage Provider for internal user management. Returns an array of `User` objects.",
+        "operationId": "usersGET",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FullUser"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "post": {
+        "summary": "New user",
+        "description": "API call registers a new user and creates new Cloud Storage Vault at the Provider. This API call is not specified and is intended to be used for internal user management.",
+        "operationId": "usersPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "User",
+            "description": "Defines full name, login and password of the user.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/FullUser"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Conflict - User already exists"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/users/access": {
+      "post": {
+        "summary": "Acquire access permission",
+        "description": "Acquires access permissions to the `api_key` that is used in this request. If `key`is a `vault-write-key` `write permission`is granted, if `key`is `vault-read-key` `read permission`is granted.",
+        "operationId": "usersAccessPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "key",
+            "required": true,
+            "description": "(Read or write) Access key to one Cloud Storage Vault.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "vault-access-key": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Access key for Cloud Storage Vault"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "full-name": {
+                  "type": "string"
+                },
+                "vault-id": {
+                  "type": "string",
+                  "description": "ID of the user's Cloud Storage Vault."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/users/access/{key}": {
+      "get": {
+        "summary": "Validate access token",
+        "description": "tbd",
+        "operationId": "usersAccessGET",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "description": "Access key for Cloud Storage Vault",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "full-name": {
+                  "type": "string"
+                },
+                "vault-id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "ID of the user's Cloud Storage Vault."
+                },
+                "type": {
+                  "type": "string",
+                  "description": "`read` or `write` access key"
+                },
+                "in-use": {
+                  "type": "boolean",
+                  "description": "`true` when key is already in use, otherwise `false`"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Release access permissions",
+        "description": "Releases access permissions of the `api_key` that is used in this request. If `key`is a `vault-write-key` `write permission`is released, if `key`is `vault-read-key` `read permission`is released.",
+        "operationId": "usersAccessKeyDELETE",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "description": "Access key for Cloud Storage Vault",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/datapackages": {
+      "post": {
+        "summary": "Push data packages",
+        "description": "This API call enables OEMs to write data packages into the cloud. Data packages are stored within a CVIM container structure. Every data package needs to contain the correct vehicle-id. The OEM needs write permission to the user's Cloud Storage Vault. The Cloud Storage Provider assignes an unique datapackage-id to every delivered data package.",
+        "operationId": "datapackagesPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Data Package Container",
+            "required": true,
+            "description": "CVIM container structure containing valid and json encoded CVIM data packages",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataPackage"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/datapackages/{datapackageid}": {
+      "get": {
+        "summary": "Get data package",
+        "description": "Retrieve one data package with `datapackage-id`.",
+        "operationId": "datapackagesIdGET",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "datapackageid",
+            "description": "Unique data package identifier",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "metadata",
+            "description": "Retrieve *only* metadata, default=false",
+            "required": false,
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DataPackage"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/datapackages/query": {
+      "post": {
+        "summary": "Query data packages",
+        "description": "Allows searching for data packages. Cloud Storage Provider will only include Cloud Storage Vaults into search where `api_key` has read access.",
+        "operationId": "datapackagesQueryPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "query",
+            "description": "Query for data packages",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataPackage"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/datapackages/query_stream": {
+      "post": {
+        "summary": "Query data packages",
+        "description": "Allows searching for data packages. Cloud Storage Provider will only include Cloud Storage Vaults into search where `api_key` has read access.",
+        "operationId": "datapackagesQueryStreamPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "query",
+            "description": "Query for data packages",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Query"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataPackage"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "post": {
+        "summary": "Subscribe Push Notification",
+        "description": "Functionality of the marketplace to subscribe to push notification events. Push notifications are sent, whenever users put data into their Cloud Storage Vaults.",
+        "operationId": "notificationsPOST",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "config",
+            "description": "Push Notification URL",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "handler-url": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "URL for push notifications"
+                },
+                "level": {
+                  "type": "string",
+                  "description": "Defines the level of the notification ('id-only', 'metadata' or 'full')"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Unsubscribe Push Notification",
+        "description": "No more push notifications will be sent from the Cloud Storage Provider to the marketplace.",
+        "operationId": "notificationsDELETE",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "default": {
+            "description": "Unexpected error"
+          }
+        }
+      }
+    },
+    "/access": {
+      "get": {
+        "summary": "Validate authentication token",
+        "description": "t.b.d.",
+        "operationId": "accessGET",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden / No authorization token in header"
+          },
+          "404": {
+            "description": "Authorization token not found!"
+          },
+	
+          "500": {
+            "description": "Internal Error"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "Authentication",
+      "description": "Provides authentification for OEM and Marketplace. Must be sent in HTTP header.",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "FullUser": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/User"
+        }
+      ],
+      "properties": {
+        "vault-id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Unique identifier of the user's Cloud Storage Vault. Can also be used as user identification."
+        },
+        "vault-write-key": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Unique key for acquiring write access to user's Cloud Storage Vault. The key is generated by the Cloud Storage Provider."
+        },
+        "vault-write-access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "readOnly": true,
+          "description": "Name of all instances that have write access to user's Cloud Storage Vault."
+        },
+        "vault-read-key": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Unique key for acquiring read access to user's Cloud Storage Vault. The key is generated by the Cloud Storage Provider."
+        },
+        "vault-read-access": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "readOnly": true,
+          "description": "Name of all instances that have read access to user's Cloud Storage Vault."
+        },
+        "time-created": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true,
+          "description": "Account creation date."
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "full-name": {
+          "type": "string",
+          "description": "Full name of the user"
+        },
+        "login-name": {
+          "type": "string",
+          "format": "email",
+          "description": "Login name of the user (e-mail)"
+        },
+        "password": {
+          "type": "string",
+          "description": "Password of the user"
+        }
+      },
+      "required": [
+        "full-name",
+        "login-name",
+        "password"
+      ]
+    },
+    "DataPackage": {
+      "type": "object",
+      "properties": {
+        "vault-id": {
+          "type": "string",
+          "description": "Cloud Storage Vault ID, where the data packages are pushed into."
+        },
+        "datapackage-id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Unique identifier of the data package. Property is set by Cloud Storage Provider."
+        },
+        "data": {
+          "type": "object",
+          "description": "CVIM data"
+        },
+        "cvim-version": {
+          "type": "string",
+          "description": "Version of the CVIM protocol"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the Data Package"
+        },
+        "measurement-channel-id": {
+          "type": "string",
+          "description": "Identifier of the Measurement Channel whose data is inside this data package"
+        },
+        "timestamp-start": {
+          "type": "string",
+          "description": "Measurement start time"
+        },
+        "timestamp-stop": {
+          "type": "string",
+          "description": "Measurement stop time"
+        },
+        "mileage-start": {
+          "type": "number",
+          "description": "Mileage at the start of measurement in kilometres (km)"
+        },
+        "mileage-stop": {
+          "type": "number",
+          "description": "Mileage at the end of measurement in kilometres (km)"
+        },
+        "geo-bounding-box": {
+          "type": "object",
+          "description": "geographic bounding box (see reference manual section 6.5.1.1)"
+        },
+        "oem-certification": {
+          "type": "object",
+          "description": "OEM certification (see reference manual section 6.5.1.2)"
+        },
+        "ownership-information": {
+          "type": "object",
+          "description": "Data Ownership Information (see reference manual section 6.5.1.3)"
+        },
+        "expiration-date": {
+          "type": "string",
+          "description": "Data expiration date"
+        },
+        "data-masking-active": {
+          "type": "boolean",
+          "description": "Indicates status of data-masking (true = active)"
+        }
+      },
+      "required": [
+        "vault-id",
+        "cvim-version",
+        "type",
+        "measurement-channel-id",
+        "timestamp-start",
+        "timestamp-stop",
+        "data"
+      ]
+    },
+    "Query": {
+      "type": "object",
+      "properties": {
+        "datapackage-id": {
+          "description": "Array of Data Package IDs",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Data Package ID"
+          }
+        },
+        "measurement-channel-id": {
+          "description": "Array of Measurement Channel IDs",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Measurement Channel ID"
+          }
+        },
+        "vault-id": {
+          "description": "Array of Cloud Storage Vault IDs",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "submit-time": {
+          "description": "Data Package submission time",
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "string",
+              "description": "Earliest Data Package submission time",
+              "format": "date-time"
+            },
+            "max": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Latest Data Package submission time"
+            }
+          }
+        },
+        "metadata": {
+          "description": "Request only metadata, default=off",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

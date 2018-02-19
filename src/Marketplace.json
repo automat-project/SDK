@@ -1,0 +1,2557 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.0.7",
+    "title": "AutoMat MarketplaceInterface",
+    "description": "AutoMat Marketplace Interface that covers CVIM catalogue, Data Packages Discovery and Data Packages retrieval (also some administrative functionalities like Cloud Storage Providers and Vehicle Owners handling)"
+  },
+  "host": "marketplace.automat-project.eu",
+  "schemes": [
+    "https"
+  ],
+  "basePath": "/api",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "securityDefinitions": {
+    "ApiKeyAuth": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "X-Auth-Token"
+    }
+  },
+  "definitions": {
+    "Signal": {
+      "description": "Signals are the perception organs of vehicles.",
+      "discriminator": "type",
+      "required": [
+        "name",
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "description": "Id of the Signal",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the Signal",
+          "type": "string"
+        }
+      }
+    },
+    "MeasurementChannel": {
+      "description": "The measurement layer defines how sensor signals are captured and processed",
+      "discriminator": "type",
+      "required": [
+        "measurement-channel-id",
+        "name",
+        "type"
+      ],
+      "properties": {
+        "measurement-channel-id": {
+          "description": "Unique Identifier of the Meas-urement Channel",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the Measurement Channel",
+          "type": "string"
+        },
+        "type": {
+          "description": "Type of Measurement Channel",
+          "type": "string",
+          "enum": [
+            "time-series",
+            "histogram",
+            "geo-histogram",
+            "general-purpose"
+          ]
+        },
+        "comment": {
+          "description": "Description of the signal",
+          "type": "string"
+        }
+      }
+    },
+    "TimeSeriesMeasurementChannel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MeasurementChannel"
+        }
+      ],
+      "required": [
+        "type",
+        "format",
+        "capture-interval",
+        "on-change",
+        "sample-strategy",
+        "signal"
+      ],
+      "properties": {
+        "type": {
+          "description": "Type of the Measurement Chan-nel needs to be time-series",
+          "type": "string",
+          "enum": [
+            "time-series"
+          ]
+        },
+        "format": {
+          "description": "Data type format of the samples",
+          "type": "string"
+        },
+        "capture-interval": {
+          "description": "Capture interval between two samples in seconds.",
+          "type": "number"
+        },
+        "on-change": {
+          "type": "boolean",
+          "description": "Does Measurement-Channel only record changes in signal"
+        },
+        "sample-strategy": {
+          "description": "Signal sampling strategy",
+          "type": "string",
+          "enum": [
+            "min",
+            "max",
+            "average",
+            "last-known-value"
+          ]
+        },
+        "signal": {
+          "$ref": "#/definitions/Signal"
+        }
+      }
+    },
+    "HistogramMeasurementChannel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MeasurementChannel"
+        }
+      ],
+      "required": [
+        "type",
+        "aggregation-strategy",
+        "capture-interval",
+        "dimensions",
+        "bins"
+      ],
+      "properties": {
+        "type": {
+          "description": "Type of the Measurement Chan-nel needs to be histogram or ge -histogram",
+          "type": "string",
+          "enum": [
+            "histogram",
+            "geo-histogram"
+          ]
+        },
+        "aggregation-strategy": {
+          "type": "string",
+          "enum": [
+            "time",
+            "count",
+            "min",
+            "max"
+          ]
+        },
+        "capture-interval": {
+          "description": "Capture Interval of one Histo-gram",
+          "type": "number"
+        },
+        "dimensions": {
+          "description": "Dimensions of the Histogram",
+          "type": "integer",
+          "minimum": 1
+        },
+        "bins": {
+          "description": "Array of bin configurations",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "type",
+              "lower-bound",
+              "upper-bound",
+              "signal",
+              "number-of-bins"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "linear",
+                  "logarithmic",
+                  "custom"
+                ]
+              },
+              "lower-bound": {
+                "type": "number"
+              },
+              "upper-bound": {
+                "type": "number"
+              },
+              "signal": {
+                "$ref": "#/definitions/Signal"
+              },
+              "number-of-bins": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "alternative-bin-labels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "GeoBasedHistogramMeasurementChannel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/HistogramMeasurementChannel"
+        }
+      ],
+      "required": [
+        "type",
+        "geo-resolution"
+      ],
+      "properties": {
+        "type": {
+          "description": "Type of the Measurement Channel needs to be geo-histogram",
+          "type": "string",
+          "enum": [
+            "geo-histogram"
+          ]
+        },
+        "geo-resolution": {
+          "description": "Geographic resolution in Meters",
+          "type": "number"
+        }
+      }
+    },
+    "GeneralPurposeMeasurementChannel": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MeasurementChannel"
+        }
+      ],
+      "required": [
+        "type",
+        "signal"
+      ],
+      "properties": {
+        "type": {
+          "description": "Type of the Measurement Chan-nel needs to be general-purpose",
+          "type": "string",
+          "enum": [
+            "geo-histogram"
+          ]
+        },
+        "signal": {
+          "$ref": "#/definitions/Signal"
+        }
+      }
+    },
+    "CloudStorageProvider": {
+      "description": "Company that offers a Cloud Storage service to AutoMat Vehicle Owners.",
+      "required": [
+        "name",
+        "cloudBaseUrl",
+        "accessToken",
+        "contactEmail"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the Cloud Storage Provider",
+          "type": "string"
+        },
+        "cloudBaseUrl": {
+          "description": "Base URL of the Cloud Storage Provider API",
+          "type": "string",
+          "format": "url"
+        },
+        "accessToken": {
+          "description": "Cloud Storage Provider API access token",
+          "type": "string",
+          "format": "uuid"
+        },
+        "contactEmail": {
+          "description": "Contact email",
+          "type": "string",
+          "format": "email"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "VehicleOwner": {
+      "description": "Person who has a vehicle and want to upload data to the marketplace",
+      "required": [
+        "name",
+        "cloudStorageProvider",
+        "email",
+        "readAccessKey",
+        "cloudVaultId"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the Vehicle Owner",
+          "type": "string"
+        },
+        "cloudStorageProvider": {
+          "$ref": "#/definitions/CloudStorageProvider"
+        },
+        "email": {
+          "description": "Contact email",
+          "type": "string",
+          "format": "email"
+        },
+        "readAccessKey": {
+          "description": "Read access key for cloud vault",
+          "type": "string",
+          "format": "uuid"
+        },
+        "cloudVaultId": {
+          "description": "Cloud vault id",
+          "type": "string",
+          "format": "uuid"
+        },
+        "testDataClearance": {
+          "description": "Permission to provide test data",
+          "type": "boolean"
+        },
+        "aggregationServiceDataClearance": {
+          "description": "Permission to provide data for aggregation service",
+          "type": "boolean"
+        },
+        "discoveryClearance": {
+          "description": "Permission to provide data for discovery service",
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "TravelledDurationConstraint": {
+      "description": "Constraint to limit travel duration",
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "TravelledDistanceConstraint": {
+      "description": "Constraint to limit travel distance",
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "DateRangeConstraint": {
+      "description": "Constraint to limit travel dates",
+      "properties": {
+        "min": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "max": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "GeographicalConstraint": {
+      "description": "Constraint to limit travels by geographical constraints",
+      "properties": {
+        "latitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "latitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "altitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "altitude-max": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "VehicleDataRequest": {
+      "type": "object",
+      "description": "Request used by Service Providers to ask for Vehicle Data",
+      "required": [
+        "channels"
+      ],
+      "properties": {
+        "channels": {
+          "description": "Array of CVIM Measurement Channel Ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "travelledDuration": {
+          "$ref": "#/definitions/TravelledDurationConstraint"
+        },
+        "travelledDistance": {
+          "$ref": "#/definitions/TravelledDistanceConstraint"
+        },
+        "travelDates": {
+          "$ref": "#/definitions/DateRangeConstraint"
+        },
+        "geoBoundingBox": {
+          "$ref": "#/definitions/GeographicalConstraint"
+        },
+        "submissionDate": {
+          "$ref": "#/definitions/DateRangeConstraint"
+        }
+      }
+    },
+    "VehicleDataAvailability": {
+      "description": "Statistical information about the amount of data packages",
+      "required": [
+        "average-trip-length",
+        "max-trip-length",
+        "min-trip-length",
+        "users-number",
+        "trips-number",
+        "time-distribution",
+        "geo-distribution",
+        "min-trip-duration",
+        "average-trip-duration",
+        "max-trip-duration"
+      ],
+      "properties": {
+        "average-trip-length": {
+          "type": "number",
+          "description": "Average number of kilometres for the data packag-es in the scope of VehicleDataRequest",
+          "format": "double"
+        },
+        "max-trip-length": {
+          "type": "number",
+          "format": "double"
+        },
+        "min-trip-length": {
+          "type": "number",
+          "format": "double"
+        },
+        "users-number": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "trips-number": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max-trip-duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min-trip-duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "average-trip-duration": {
+          "type": "number",
+          "format": "double"
+        },
+        "time-distribution": {
+          "$ref": "#/definitions/TimeDistributionHistogram"
+        },
+        "geo-distribution": {
+          "$ref": "#/definitions/GeographicalDistributionHeatmap"
+        }
+      }
+    },
+    "TimeDistributionHistogram": {
+      "required": [
+        "min-timestamp-start",
+        "max-timestamp-stop",
+        "histogram"
+      ],
+      "properties": {
+        "min-timestamp-start": {
+          "type": "string"
+        },
+        "max-timestamp-stop": {
+          "type": "string"
+        },
+        "histogram": {
+          "$ref": "#/definitions/Histogram"
+        }
+      }
+    },
+    "Histogram": {
+      "required": [
+        "timestamp-start",
+        "timestamp-stop",
+        "bins-size",
+        "bins"
+      ],
+      "properties": {
+        "timestamp-start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timestamp-stop": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "bins-size": {
+          "description": "Width of each one of the bins of the histo-gram",
+          "type": "integer",
+          "minimum": 0
+        },
+        "bins": {
+          "description": "Amount of data packages available within each bin. The size of the bins is defined using bins-size property.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "GeographicalDistributionHeatmap": {
+      "required": [
+        "latitude-min",
+        "latitude-max",
+        "longitude-min",
+        "longitude-max",
+        "heatmap"
+      ],
+      "properties": {
+        "latitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "latitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "heatmap": {
+          "$ref": "#/definitions/Heatmap"
+        }
+      }
+    },
+    "HeatmapBin": {
+      "required": [
+        "latitude",
+        "longitude",
+        "count"
+      ],
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "count": {
+          "type": "number",
+          "format": "integer"
+        }
+      }
+    },
+    "Heatmap": {
+      "required": [
+        "latitude-min",
+        "latitude-max",
+        "longitude-min",
+        "longitude-max",
+        "bins-size",
+        "bins"
+      ],
+      "properties": {
+        "latitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "latitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-min": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude-max": {
+          "type": "number",
+          "format": "double"
+        },
+        "bins-size": {
+          "description": "Width of each one of the bins of the histo-gram",
+          "type": "number",
+          "format": "integer",
+          "minimum": 0
+        },
+        "bins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/HeatmapBin"
+          }
+        }
+      }
+    },
+    "ServiceProvider": {
+      "description": "Companies that create services using Marketplace vehicle data.",
+      "required": [
+        "name",
+        "email"
+      ],
+      "properties": {
+        "name": {
+          "description": "Name of the service provider",
+          "type": "string"
+        },
+        "email": {
+          "description": "Contact mail associated with the marketplace account",
+          "type": "string",
+          "format": "email"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "ServiceProviderOfferToCreate": {
+      "description": "Offers used by Service Providers to request vehicle data.Used to create a new offer",
+      "required": [
+        "vehicleDataRequest"
+      ],
+      "properties": {
+        "incentives": {
+          "description": "Incentives of-fered by the SP to each Vehicle Owner who subscribes to the offer",
+          "type": "string"
+        },
+        "maxNumberOfDataSources": {
+          "description": "Maximum number of Vehicle Owners who must subscribe to the offer",
+          "type": "integer",
+          "minimum": 0
+        },
+        "vehicleDataRequest": {
+          "$ref": "#/definitions/VehicleDataRequest"
+        },
+        "serviceProvider": {
+          "description": "ID of the service provider",
+          "type": "string"
+        },
+        "aeonSubscriptionUrl": {
+          "type": "string",
+          "format": "url"
+        }
+      }
+    },
+    "ServiceProviderOffer": {
+      "description": "Offers used by Service Providers to request vehicle data.",
+      "required": [
+        "vehicleDataRequest"
+      ],
+      "properties": {
+        "incentives": {
+          "description": "Incentives of-fered by the SP to each Vehicle Owner who subscribes to the offer",
+          "type": "string"
+        },
+        "maxNumberOfDataSources": {
+          "description": "Maximum number of Vehicle Owners who must subscribe to the offer",
+          "type": "integer",
+          "minimum": 0
+        },
+        "vehicleDataRequest": {
+          "$ref": "#/definitions/VehicleDataRequest"
+        },
+        "serviceProvider": {
+          "$ref": "#/definitions/ServiceProvider"
+        },
+        "aeonSubscriptionUrl": {
+          "type": "string",
+          "format": "url"
+        },
+        "aeonPublicationUrl": {
+          "type": "string",
+          "format": "url"
+        },
+        "aeonChannelId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "AeonSubscription": {
+      "description": "Information that allows subscribing to an AEON channel",
+      "required": [
+        "aeonSubscriptionUrl"
+      ],
+      "properties": {
+        "aeonSubscriptionUrl": {
+          "type": "string",
+          "format": "url"
+        }
+      }
+    },
+    "CVIMMetadata": {
+      "description": "CVIM metadata",
+      "required": [
+        "cvim-version",
+        "type",
+        "measurement-channel-id",
+        "timestamp-start",
+        "timestamp-stop"
+      ],
+      "properties": {
+        "vault-id": {
+          "type": "string",
+          "description": "Cloud Storage Vault ID, where the data packages are pushed into."
+        },
+        "trip-id": {
+          "type": "string",
+          "description": "Unique identifier for data packages captured during the same trip."
+        },
+        "datapackage-id": {
+          "description": "Unique identifier of the data package. Property is set by Cloud Storage Provider.",
+          "type": "string"
+        },
+        "cvim-version": {
+          "type": "string",
+          "description": "Version of the CVIM protocol"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the Data Package"
+        },
+        "measurement-channel-id": {
+          "type": "string",
+          "description": "Identifier of the Measurement Channel whose data is inside this data package"
+        },
+        "timestamp-start": {
+          "type": "string",
+          "description": "Measurement start time"
+        },
+        "timestamp-stop": {
+          "type": "string",
+          "description": "Measurement stop time"
+        },
+        "submit-time": {
+          "type": "string",
+          "description": "Submission time"
+        },
+        "mileage-start": {
+          "type": "number",
+          "description": "Mileage at the start of measurement in kilometres (km)"
+        },
+        "mileage-stop": {
+          "type": "number",
+          "description": "Mileage at the end of measurement in kilometres (km)"
+        },
+        "geo-bounding-box": {
+          "type": "object",
+          "description": "geographic bounding box (see reference manual section 6.5.1.1)"
+        },
+        "oem-certification": {
+          "type": "object",
+          "description": "OEM certification (see reference manual section 6.5.1.2)"
+        },
+        "ownership-information": {
+          "type": "object",
+          "description": "Data Ownership Information (see reference manual section 6.5.1.3)"
+        },
+        "expiration-date": {
+          "type": "string",
+          "description": "Data expiration date"
+        },
+        "data-masking-active": {
+          "type": "boolean",
+          "description": "Indicates status of data-masking (true = active)"
+        }
+      }
+    },
+    "CVIMMetadataAnswer": {
+      "description": "Answer provided by the marketplace when trying to retrieve a set of metadata",
+      "properties": {
+        "total": {
+          "description": "Total number of data packages for the offer",
+          "type": "integer"
+        },
+        "size": {
+          "description": "Number of metadata returned",
+          "type": "integer"
+        },
+        "metadata": {
+          "description": "CVIM metadata",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CVIMMetadata"
+          }
+        }
+      }
+    },
+    "CVIMDataPackage": {
+      "description": "CVIM data packages",
+      "required": [
+        "vault-id",
+        "cvim-version",
+        "type",
+        "measurement-channel-id",
+        "timestamp-start",
+        "timestamp-stop",
+        "data"
+      ],
+      "properties": {
+        "vault-id": {
+          "type": "string",
+          "description": "Cloud Storage Vault ID, where the data packages are pushed into."
+        },
+        "datapackage-id": {
+          "description": "Unique identifier of the data package. Property is set by Cloud Storage Provider.",
+          "type": "string"
+        },
+        "trip-id": {
+          "type": "string",
+          "description": "Unique identifier for data packages captured during the same trip."
+        },
+        "data": {
+          "type": "object",
+          "description": "CVIM data"
+        },
+        "cvim-version": {
+          "type": "string",
+          "description": "Version of the CVIM protocol"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the Data Package"
+        },
+        "measurement-channel-id": {
+          "type": "string",
+          "description": "Identifier of the Measurement Channel whose data is inside this data package"
+        },
+        "timestamp-start": {
+          "type": "string",
+          "description": "Measurement start time"
+        },
+        "timestamp-stop": {
+          "type": "string",
+          "description": "Measurement stop time"
+        },
+        "mileage-start": {
+          "type": "number",
+          "description": "Mileage at the start of measurement in kilometres (km)"
+        },
+        "mileage-stop": {
+          "type": "number",
+          "description": "Mileage at the end of measurement in kilometres (km)"
+        },
+        "geo-bounding-box": {
+          "type": "object",
+          "description": "geographic bounding box (see reference manual section 6.5.1.1)"
+        },
+        "oem-certification": {
+          "type": "object",
+          "description": "OEM certification (see reference manual section 6.5.1.2)"
+        },
+        "ownership-information": {
+          "type": "object",
+          "description": "Data Ownership Information (see reference manual section 6.5.1.3)"
+        },
+        "expiration-date": {
+          "type": "string",
+          "description": "Data expiration date"
+        },
+        "data-masking-active": {
+          "type": "boolean",
+          "description": "Indicates status of data-masking (true = active)"
+        }
+      }
+    },
+    "ContractToCreate": {
+      "description": "Entity created when a vehicle owner subscribes an offer published by a service provider",
+      "required": [
+        "vehicleOwner",
+        "effectiveDate",
+        "spOffer"
+      ],
+      "properties": {
+        "vehicleOwner": {
+          "type": "string",
+          "description": "ID of the vehicle owner"
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "terminationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "spOffer": {
+          "type": "string",
+          "description": "ID of the SP offer related with this contract"
+        }
+      }
+    },
+    "Contract": {
+      "description": "Entity created when a vehicle owner subscribes an offer published by a service provider",
+      "required": [
+        "vehicleOwner",
+        "effectiveDate",
+        "spOffer"
+      ],
+      "properties": {
+        "vehicleOwner": {
+          "$ref": "#/definitions/VehicleOwner"
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "terminationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "spOffer": {
+          "$ref": "#/definitions/ServiceProviderOffer",
+          "description": "ID of the SP offer related with this contract"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "DataTransaction": {
+      "description": "Entity that accounts the retrieval or forwarding of a data package to a service provider offer",
+      "required": [
+        "serviceProviderOffer",
+        "serviceProvider",
+        "accessDatetime",
+        "method",
+        "size",
+        "datapackage-id",
+        "datapackageHash"
+      ],
+      "properties": {
+        "contract": {
+          "description": "Id of the contract. Only returned to vehicle owners",
+          "type": "string"
+        },
+        "vehicleOwner": {
+          "description": "Id of the vehicle owner. Only returned to vehicle owners",
+          "type": "string"
+        },
+        "serviceProvider": {
+          "description": "Id of the service provider",
+          "type": "string"
+        },
+        "serviceProviderOffer": {
+          "description": "Id of the offer",
+          "type": "string"
+        },
+        "accessDatetime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "pull",
+            "push"
+          ]
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "datapackage-id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "datapackageHash": {
+          "type": "string"
+        },
+        "nonce": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "UserProfile": {
+      "description": "Overview of all the information available in the marketplace for a users-number",
+      "required": [
+        "roles",
+        "email",
+        "vehicleOwners",
+        "serviceProviders",
+        "cloudStorageProviders"
+      ],
+      "properties": {
+        "roles": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "vehicleOwners": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/VehicleOwner"
+          }
+        },
+        "serviceProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceProvider"
+          }
+        },
+        "cloudStorageProviders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CloudStorageProvider"
+          }
+        }
+      }
+    },
+    "TripInformation": {
+      "description": "Information about a trip",
+      "required": [
+        "trip-id",
+        "min-submit-time",
+        "max-submit-time",
+        "min-timestamp-start",
+        "max-timestamp-stop",
+        "datapackage-count"
+      ],
+      "properties": {
+        "trip-id": {
+          "type": "string"
+        },
+        "min-submit-time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "max-submit-time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "min-timestamp-start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "max-timestamp-stop": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "datapackage-count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "Error": {
+      "description": "Error definition. It is composed by code error and message",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "responses": {
+    "Standard500ErrorResponse": {
+      "description": "An unexpected error occured.",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "SignalDoesNotExistResponse": {
+      "description": "Signal does not exist."
+    },
+    "MeasurementChannelDoesNotExistResponse": {
+      "description": "MeasurementChannel does not exist."
+    },
+    "CloudStorageProviderDoestNotExist": {
+      "description": "Cloud Storage Provider does not exist."
+    },
+    "VehicleOwnerDoestNotExist": {
+      "description": "Vehicle Owner does not exist."
+    },
+    "ServiceProviderDoestNotExist": {
+      "description": "Service Provider does not exist."
+    },
+    "ServiceProviderOfferDoesNotExistResponse": {
+      "description": "ServiceProviderOffer does not exist."
+    },
+    "ContractDoesNotExistResponse": {
+      "description": "Contract does not exist."
+    },
+    "DataTransactionDoesNotExistResponse": {
+      "description": "DataTransaction does not exist."
+    }
+  },
+  "parameters": {
+    "signalID": {
+      "name": "signalID",
+      "in": "path",
+      "required": true,
+      "description": "The Signal's identifier parameter",
+      "type": "string"
+    },
+    "channelID": {
+      "name": "channelID",
+      "in": "path",
+      "required": true,
+      "description": "The MeasurementChannel's identifier parameter",
+      "type": "string"
+    },
+    "measurementChannelType": {
+      "name": "type",
+      "in": "query",
+      "description": "The MeasurementChannel's type parameter",
+      "type": "string",
+      "enum": [
+        "time-series",
+        "histogram",
+        "geo-histogram",
+        "general-purpose"
+      ]
+    },
+    "cloudStorageProviderID": {
+      "name": "cloudStorageProviderID",
+      "in": "path",
+      "required": true,
+      "description": "The Cloud Storage Provider's identifier parameter",
+      "type": "string"
+    },
+    "vehicleOwnerID": {
+      "name": "vehicleOwnerID",
+      "in": "path",
+      "required": true,
+      "description": "The Vehicle Owner's identifier parameter",
+      "type": "string"
+    },
+    "serviceProviderID": {
+      "name": "serviceProviderID",
+      "in": "path",
+      "required": true,
+      "description": "The Service Provider's identifier parameter",
+      "type": "string"
+    },
+    "serviceProviderOfferID": {
+      "name": "serviceProviderOfferID",
+      "in": "path",
+      "required": true,
+      "description": "The Service Provider Offer's identifier parameter",
+      "type": "string"
+    },
+    "contractID": {
+      "name": "contractID",
+      "in": "path",
+      "required": true,
+      "description": "The Contract's identifier parameter",
+      "type": "string"
+    },
+    "dataTransactionID": {
+      "name": "dataTransactionID",
+      "in": "path",
+      "required": true,
+      "description": "The DataTransactionID's identifier parameter",
+      "type": "string"
+    }
+  },
+  "paths": {
+    "/Signal": {
+      "post": {
+        "description": "Creates a new `Signal` object.\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "signal",
+            "in": "body",
+            "description": "The `Signal` to create",
+            "schema": {
+              "$ref": "#/definitions/Signal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Signal succesfully created."
+          },
+          "400": {
+            "description": "Signal couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `Signal` objects.\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfSignals",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Signal"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/SignalDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/Signal/{signalID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/signalID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `Signal` object identified by its id\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/Signal"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/SignalDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `Signal` object identified via its id\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "204": {
+            "description": "Signal successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/SignalDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/Signal/{signalID}/MeasurementChannels": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/signalID"
+        },
+        {
+          "$ref": "#/parameters/measurementChannelType"
+        }
+      ],
+      "get": {
+        "description": "Gets `MeasurementChannel` objects for a certain `Signal` identified via its id\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfMeasurementChannels",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MeasurementChannel"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/SignalDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/MeasurementChannel": {
+      "post": {
+        "description": "Creates a new `MeasurementChannel` object.\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "measurementChannel",
+            "in": "body",
+            "description": "The `MeasurementChannel` to create",
+            "schema": {
+              "$ref": "#/definitions/MeasurementChannel"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "MeasurementChannel succesfully created."
+          },
+          "400": {
+            "description": "MeasurementChannel couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `MeasurementChannel` objects.\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/measurementChannelType"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfMeasurementChannels",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MeasurementChannel"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/MeasurementChannelDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/MeasurementChannel/{channelID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/channelID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `MeasurementChannel` object identified bit its id\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/MeasurementChannel"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/MeasurementChannelDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `MeasurementChannel` object identified via its id\n",
+        "tags": [
+          "Catalogue"
+        ],
+        "responses": {
+          "204": {
+            "description": "MeasurementChannel successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/MeasurementChannelDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/CloudStorageProvider": {
+      "post": {
+        "description": "Creates a new `CloudStorageProvider` object.\n",
+        "tags": [
+          "Cloud Storage Providers"
+        ],
+        "parameters": [
+          {
+            "name": "cloudProvider",
+            "in": "body",
+            "description": "The `CloudStorageProvider` to create",
+            "schema": {
+              "$ref": "#/definitions/CloudStorageProvider"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "CloudStorageProvider succesfully created."
+          },
+          "400": {
+            "description": "CloudStorageProvider couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `CloudStorageProvider` objects.\n",
+        "tags": [
+          "Cloud Storage Providers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfCloudStorageProviders",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CloudStorageProvider"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/CloudStorageProvider/{cloudStorageProviderID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/cloudStorageProviderID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `CloudStorageProvider` object identified by its id\n",
+        "tags": [
+          "Cloud Storage Providers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/CloudStorageProvider"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/CloudStorageProviderDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `CloudStorageProvider` object identified via its id\n",
+        "tags": [
+          "Cloud Storage Providers"
+        ],
+        "responses": {
+          "204": {
+            "description": "CloudStorageProvider successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/CloudStorageProviderDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner": {
+      "post": {
+        "description": "Creates a new `VehicleOwner` object.\n",
+        "tags": [
+          "Vehicle Owners"
+        ],
+        "parameters": [
+          {
+            "name": "vehicleOwner",
+            "in": "body",
+            "description": "The `VehicleOwner` to create",
+            "schema": {
+              "$ref": "#/definitions/VehicleOwner"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "VehicleOwner succesfully created."
+          },
+          "400": {
+            "description": "VehicleOwner couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `VehicleOwner` objects.\n",
+        "tags": [
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfVehicleOwners",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/VehicleOwner"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner/{vehicleOwnerID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/vehicleOwnerID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `VehicleOwner` object identified by its id\n",
+        "tags": [
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/VehicleOwner"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `VehicleOwner` object identified via its id\n    tags:\n      - Cloud Storage Providers\n",
+        "tags": [
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "204": {
+            "description": "VehicleOwner successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner/{vehicleOwnerID}/VehicleDataDiscovery": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/vehicleOwnerID"
+        }
+      ],
+      "post": {
+        "description": "Retrives statistical information about data packages for a vehicle owner\n",
+        "tags": [
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/VehicleDataAvailability"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner/{vehicleOwnerID}/CvimMetadata/": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/vehicleOwnerID"
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "description": "Number of data packages to be received. If not provided, default value is 1000. Maximum value is 1000.",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "from",
+          "description": "Pagination functionality. If provided, it defines the offset from the first result you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "description": "Pagination functionality. If provided, it defines the firt page you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "description": "Sorting functionality. If provided, it defines the field and order to sort results",
+          "type": "string",
+          "enum": [
+            "submit-time",
+            "-submit-time",
+            "timestamp-start",
+            "-timestamp-start",
+            "timestamp-stop",
+            "-timestamp-stop"
+          ]
+        },
+        {
+          "in": "query",
+          "name": "order",
+          "description": "Sorting functionality. If provided, it defines order to sort results",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      ],
+      "get": {
+        "description": "Gets a `CVIMMetadata` objects",
+        "tags": [
+          "CVIM data",
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/CVIMMetadataAnswer"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner/{vehicleOwnerID}/cvimDataPackages/{dataPackageID}": {
+      "get": {
+        "description": "Gets a `CVIMMetadata` objects",
+        "tags": [
+          "CVIM data",
+          "Vehicle Owners"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/CVIMDataPackage"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleOwner/{vehicleOwnerID}/dataTransactions": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/vehicleOwnerID"
+        }
+      ],
+      "get": {
+        "description": "Retrives list of transactions for a service provider\n",
+        "tags": [
+          "Service Providers",
+          "Accounting"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "title": "ArrayOfDataTransaction",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataTransaction"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/VehicleOwnerDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/VehicleDataDiscovery": {
+      "post": {
+        "description": "It enables obtaining information about the available CVIM data packages that are accessible through the services of the Vehicle Big Data Marketplace",
+        "tags": [
+          "Discovery"
+        ],
+        "parameters": [
+          {
+            "name": "vehicleDataRequest",
+            "in": "body",
+            "required": true,
+            "description": "The `VehicleDataRequest` to create",
+            "schema": {
+              "$ref": "#/definitions/VehicleDataRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/VehicleDataAvailability"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/MeasurementChannelDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProvider": {
+      "post": {
+        "description": "Creates a new `ServiceProvider` object.\n",
+        "tags": [
+          "Service Providers"
+        ],
+        "parameters": [
+          {
+            "name": "serviceProvider",
+            "in": "body",
+            "description": "The `ServiceProvider` to create",
+            "schema": {
+              "$ref": "#/definitions/ServiceProvider"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "ServiceProvider succesfully created."
+          },
+          "400": {
+            "description": "ServiceProvider couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `ServiceProvider` objects.\n",
+        "tags": [
+          "Service Providers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfServiceProviders",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ServiceProvider"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProvider/{serviceProviderID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `ServiceProvider` object identified by its id\n",
+        "tags": [
+          "Service Providers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/ServiceProvider"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `ServiceProvider` object identified via its id\n",
+        "tags": [
+          "Service Providers"
+        ],
+        "responses": {
+          "204": {
+            "description": "ServiceProvider successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProvider/{ServiceProviderID}/dataTransactions": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderID"
+        }
+      ],
+      "get": {
+        "description": "Retrives list of transactions for a service provider\n",
+        "tags": [
+          "Service Providers",
+          "Accounting"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "title": "ArrayOfDataTransaction",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataTransaction"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderDoestNotExist"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer": {
+      "post": {
+        "description": "Creates a new `ServiceProviderOffer` object.\n",
+        "tags": [
+          "Offers"
+        ],
+        "parameters": [
+          {
+            "name": "serviceProviderOffer",
+            "in": "body",
+            "required": true,
+            "description": "The `ServiceProviderOffer` to create",
+            "schema": {
+              "$ref": "#/definitions/ServiceProviderOfferToCreate"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "ServiceProviderOffer succesfully created."
+          },
+          "400": {
+            "description": "ServiceProviderOffer couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `ServiceProviderOffer` objects.\n",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfServiceProviderOffers",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ServiceProviderOffer"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `ServiceProviderOffer` object identified by its id\n",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/ServiceProviderOffer"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a `ServiceProviderOffer` object identified via its id\n",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "204": {
+            "description": "ServiceProviderOffer successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/cvimDataPackages/": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        },
+        {
+          "in": "query",
+          "name": "where",
+          "description": "It allows filtering data packages. It must be a JSON object which contains a channels key and as value an array.",
+          "type": "string"
+        },
+        {
+          "in": "query",
+          "name": "from",
+          "description": "Pagination functionality. If provided, it defines the offset from the first result you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "description": "Number of data packages to be received. If not provided, default value is 1000. Maximum value is 1000.",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "description": "Pagination functionality. If provided, it defines the page number you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "description": "Sorting functionality. If provided, it defines the field and order to sort results",
+          "type": "string",
+          "enum": [
+            "submit-time",
+            "-submit-time",
+            "timestamp-start",
+            "-timestamp-start",
+            "timestamp-stop",
+            "-timestamp-stop"
+          ]
+        },
+        {
+          "in": "query",
+          "name": "order",
+          "description": "Sorting functionality. If provided, it defines order to sort results",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      ],
+      "get": {
+        "description": "Gets a `CVIMDataPackages` objects",
+        "tags": [
+          "CVIM data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "title": "ArrayOfCVIMDataPackages",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CVIMDataPackage"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/cvimDataPackages/{dataPackageID}": {
+      "get": {
+        "description": "Gets a `CVIMMetadata` objects",
+        "tags": [
+          "CVIM data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/CVIMDataPackage"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/CvimMetadata/": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        },
+        {
+          "in": "query",
+          "name": "where",
+          "description": "It allows filtering data packages. It must be a JSON object which contains a channels key and as value an array.",
+          "type": "string"
+        },
+        {
+          "in": "query",
+          "name": "from",
+          "description": "Pagination functionality. If provided, it defines the offset from the first result you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "limit",
+          "description": "Number of data packages to be received. If not provided, default value is 1000. Maximum value is 1000.",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "in": "query",
+          "name": "page",
+          "description": "Pagination functionality. If provided, it defines the first page you want to fetch.If not provided, default value is 0",
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "description": "Sorting functionality. If provided, it defines the field and order to sort results",
+          "type": "string",
+          "enum": [
+            "submit-time",
+            "-submit-time",
+            "timestamp-start",
+            "-timestamp-start",
+            "timestamp-stop",
+            "-timestamp-stop"
+          ]
+        },
+        {
+          "in": "query",
+          "name": "order",
+          "description": "Sorting functionality. If provided, it defines order to sort results",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      ],
+      "get": {
+        "description": "Gets a `CVIMMetadata` objects",
+        "tags": [
+          "CVIM data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/CVIMMetadataAnswer"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/subscriptionInfo/": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `subscriptionInfo` objects",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/AeonSubscription"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/contracts/": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `contracts` objects",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "title": "ArrayOfContracts",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Contract"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/VehicleDataDiscovery": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        }
+      ],
+      "post": {
+        "description": "Retrives statistical information about data packages for an offer\n",
+        "tags": [
+          "Offers"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "$ref": "#/definitions/VehicleDataAvailability"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/trips": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        },
+        {
+          "in": "query",
+          "name": "sort",
+          "description": "Sorting functionality. If provided, it defines the field and order to sort results",
+          "type": "string",
+          "enum": [
+            "min-submit-time",
+            "-min-submit-time",
+            "max-submit-time",
+            "-max-submit-time",
+            "min-timestamp-start",
+            "-min-timestamp-start",
+            "max-timestamp-stop",
+            "-max-timestamp-stop"
+          ]
+        },
+        {
+          "in": "query",
+          "name": "order",
+          "description": "Sorting functionality. If provided, it defines order to sort results",
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        }
+      ],
+      "get": {
+        "description": "Retrives information about availabe trips for an offer\n",
+        "tags": [
+          "CVIM data"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "title": "ArrayOfTrips",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TripInformation"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/ServiceProviderOffer/{serviceProviderOfferID}/dataTransactions": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/serviceProviderOfferID"
+        }
+      ],
+      "get": {
+        "description": "Retrives list of transactions for an offer\n",
+        "tags": [
+          "Offers",
+          "Accounting"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull responses",
+            "schema": {
+              "title": "ArrayOfDataTransaction",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataTransaction"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/Contract": {
+      "post": {
+        "description": "Creates a new `Contract` object.\n",
+        "tags": [
+          "Contracts"
+        ],
+        "parameters": [
+          {
+            "name": "contract",
+            "in": "body",
+            "required": true,
+            "description": "The `Contract` to create",
+            "schema": {
+              "$ref": "#/definitions/ContractToCreate"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Contract succesfully created."
+          },
+          "400": {
+            "description": "Contract couldn't have been created."
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Gets `Contract` objects.\n",
+        "tags": [
+          "Contracts"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "ArrayOfContracts",
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Contract"
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/Contract/{contractID}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/contractID"
+        }
+      ],
+      "get": {
+        "description": "Gets a `Contract` object identified by its id\n",
+        "tags": [
+          "Contracts"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/Contract"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/ContractDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Updates a `Contract` object identified via its id\n",
+        "tags": [
+          "Contracts"
+        ],
+        "responses": {
+          "204": {
+            "description": "Contract successfully deleted."
+          },
+          "404": {
+            "$ref": "#/responses/ServiceProviderOfferDoesNotExistResponse"
+          },
+          "500": {
+            "$ref": "#/responses/Standard500ErrorResponse"
+          }
+        }
+      }
+    },
+    "/UserProfile": {
+      "get": {
+        "description": "Gets a user profile. Auth-X-Token must be set with a valid Oauth2 token received from the IDM.\n",
+        "responses": {
+          "200": {
+            "description": "Successfull response",
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }
+        }
+      }
+    }
+  }
+}
