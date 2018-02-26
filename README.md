@@ -31,7 +31,7 @@ git clone https://github.com/automat-project/SDK.git
 Alternatively, all files can be downloaded in one single zip file. After the download, all files need to be unzipped into a new directory.  The SDK files can be retrieved via the following link:
 
 ```
-https://github.com/automat-project/dist/SDK-v2.0.0.zip
+https://raw.githubusercontent.com/automat-project/SDK/master/dist/SDK-v2.0.zip
 ```
 
 ## Source Code Structure
