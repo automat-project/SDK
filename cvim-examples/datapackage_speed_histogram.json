@@ -1,0 +1,57 @@
+{
+    "cvim-version": "1.2.0",
+    "datapackage-id": "7a15dc48-9bcf-4c88-9add-b40b9ca02820",
+    "expiration-date": "2018-12-31T21:07:01Z",
+    "geo-bounding-box": {
+        "latitude-max": 51.502226,
+        "latitude-min": 51.493524,
+        "longitude-max": 7.49537,
+        "longitude-min": 7.398627
+    },
+    "measurement-channel-id": "151",
+    "signatures": [
+        {
+            "checksum": "4577315ec9dced7b7cc1e91beebdce6f5a6305b9fb9470caa75c7191bd5493d3",
+            "signatory": "TU Dortmund Simulation Data OEM",
+            "signature": "hRe13lkKu4sSYqs2aOLzhetm9Cvh6ubDQxjFcWzhdZp3nhrK1tbfEohDC49h30pqVK0J92leilOE2qLMhm6ErnPv5g5c9qzpm2bZbZ97UvTlQdb6A/FTsrPwXz8NqOfdKFB7a9WfxMbdl/kjX1WWVQAcEvekUVCrokkv6nEX1ADo5xSABZJXw70wqQ85fzGX2har5jlfe92o/wunCGn3eToJVJr2i1WaAT7KF3XNEOJ6QGRPznCeZGUWsQORHgCsYfirusAQN/uog+QUsn9SX2cvrx1k7cI6K3JvMQDQYroKydXJSi8Pyqa3kE5A/XgVSIZsHVQOMp0Ra39af1f7ngdwCE7hN45LmsWE9wvnB5EfJSm/jn95cYAQv2if6fARzeNNpv8njYLkzpM7pF7ZYGhTmgnZeOqUJ2a87lUahPAI9rdZ1RSJC6wOruqTEQtPcCcr1hsYwp5MOHkblpJAIOdAKWm7lChsYAgLTZzC+GkUE9kK+7uUHgtt/b6/bNfzQeEh9KFyvCPFFdpIo5Op4jqTkM+owb6/7c1thl02f6c/ARhjl5P2uUqU+YKFnRPr1BRBALpAssj3mPBLCqh7t3AhlSxM3ULobVJAnVMQnqru/XyVKG5hTCMdRpLbbQ8RWPUEceaeyKLPlQ2dn+9U31C8drMOCV5doc3jJCgB0mk="
+        },
+        {
+            "checksum": "64cf84619f7664e27c18a4c99e08419c4067af701f469032a463c505cef08823",
+            "signatory": "TU Dortmund Cloud Storage Provider",
+            "signature": "RDos7MO2pq6Iqb1Gzv6lweOT+u2i+dF/aOh80ZziIzrqDrrcT7YykHyx4W2VhKRCSDgDjWcicLLocoVrK2paHTSyt3UBvlcuBJvwSrZzEIhu9v6okr3XhTRl1vXDrVOr/je5tLjixdbaGNRoinvMuHY7eVbjJjrF8uBifioSP1651crfXz3S7SySpka8mXPjxIukhDV6KHGAUngiTwIystWdIcKdxLZu+B9TEWeWsXjDNXZb3OlszSuagXJyAUUDUQ3pp97pOzeQOyOHpiO0HUXrd3+RPifsbXramzpCwIEifVOYFB3XKz08VsSXjlrXpUEu39UxEc3GWrLF+3SWwsvc/MtDHT82zu92oTKolR9snpAlx1zQoYoAIRgKFb9BbMYbBAxhu0WissZF92nIJonXUMxbaXdCDf7BpyI+S/oDLyC7O+BNBVpCLxtdypSw/NHTL5zPl8yFkQYJEMeZTW5xwaprxnZDoXAmLMWlhOusl1EAObmPUI8aTHyFSLMYlg/g3kwpaibFaLz4+r3Ho3f4ppj2oBcde903y0BZeNC6zxbUK6r3A5JSnL4ZU6TNy5j+QcP4DFi5ixf27xPGNVU1UpROsocdlQd5P4GXkdt6jEfW4/hRHwmwgyLeqJpmUTACP9Kb61cWTKZ5OMLR0LbE1tUMW2v2xm/PRQJTjII="
+        }
+    ],
+    "submit-time": "2018-03-23T09:29:47.097138Z",
+    "timestamp-start": "2018-03-23T09:29:46.552577Z",
+    "timestamp-stop": "2018-03-23T09:40:40.552577Z",
+    "trip-id": "bb0dada0-ee1d-4d8b-b94b-c78715314d36_10",
+    "type": "histogram",
+    "vault-id": "0618b188-3ff5-4774-845f-53a9b50d8133",
+    "data": [
+        82,
+        106,
+        333,
+        6,
+        90,
+        28,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ]
+}

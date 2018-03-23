@@ -1,0 +1,392 @@
+{
+    "cvim-version": "1.2.0",
+    "datapackage-id": "902853a0-309b-461a-8a76-a52a96205e6e",
+    "expiration-date": "2018-12-31T21:07:01Z",
+    "geo-bounding-box": {
+        "latitude-max": 51.502226,
+        "latitude-min": 51.493524,
+        "longitude-max": 7.49537,
+        "longitude-min": 7.398627
+    },
+    "measurement-channel-id": "8016",
+    "signatures": [
+        {
+            "checksum": "0e24c0fa8d1107778ae1f6104af88adc0ffd33cb879ccd7151e93f1148d4dca7",
+            "signatory": "TU Dortmund Simulation Data OEM",
+            "signature": "cGxywffAn8oiTE2yIiG6vcZmfK42DnM2ExH1/msqiPo41e0CLfUkK+/KksYz03O2W+KeVDKlgY4ahKlon9As8FqTfK1PSdsOUSLTkbiTLXeAafap10q2/oMDjaT33Iak5jypA6qVlms4eqmHhLrnc5M8wUQbyPckGItabKZcX853LHUO6WanQjPKGUEK0VxvDYYllLpG23j0RLVjpGPC/zIsg32q1KKRJ2IchmmEif6REnbh7kVmpuVfnExC/NOl0sqtVOs7Z22khCBBGdR5YXqz8JhApf+d17W6NY+9NZOQs3R1agDqc686AGlgKVTUs9Rz+xdOB9uKS78dI4GkrD5y0uZ886sERwcsfQfDuz4glAQy+GPP/ENi3qRWb4zRuvOC3ga0CDtznv9ZRCCZPF4SdkNOjz0f6pPHPzbdoMDshhm6RxxKDP4YBoMpy0iApD4QKE72Jyjsnt2fUiW8KOR6GTrrqaPLiI6LnFFSBMYuKsPxUrRPkfoejliqOmPyELBquJ+h+Sa5jW7iMlVq2ouGbSxaGg11l4pC2SU+GPJ38WRbRt2e3mr8CstqEqo4GsmUhJSF2ZIUM+UQmNk5VMIaPIpVyWbPnrwk5To+7TXtj08tHCcsdj1lRVbWye1jNaJ+jS0MMaJvxe9nSStgm6J4Dw5/XTxIzKaJXLmqNyY="
+        },
+        {
+            "checksum": "c490ac74e98a09954b1894a39ee5c35c1aabce65b6f174660b352c4e895c40b0",
+            "signatory": "TU Dortmund Cloud Storage Provider",
+            "signature": "n5IurfBRRDrvm2UhelcgiEf1UIcjvEylVgYfgsfX+Wnd10PkqAKn9dWqymVXRZB3Oe3C3QKLJYXgfUebrGG87oTOP48rlGgUv1oWl7olUogg4sl9Cjw9w5idn7zMw74+z56b+4fR3NkSq2vd1OyR2oreeOoNQD7NxKfoBjEWpyCUNGRgbiDS5NfTb3eouQdndNunF8LATX6R/74GVSI85g69PEOFxc48Ukv9T+j6Ob+A0a8wDCfpRH7hK6LJZWqDvyN/C3brrTyd14tFQRWRyDOGLzjcb0pbPSsFFDf1s9vC+leEJVgT7YZ8c6hIAbb2tih39wOD3WrRVmnNmq+0aRWYvPbA9AX+67U74bx0YKOC613wCsYZmuslLUJ2WZvfc9QMfrCuSeQ7/MYdMjUoN4FKH6iPGy7uAXvJiV8/stF/mgQ/zP/CKuCk8bM/R2gS+skeJGeh0vaJJ5LJuWPL+MTcemMnZCyOE+p5vIp2iiFu/S9e3RgB1rjeryStI4rrPzNzIoLZSBUet/I8CiCQgq5hpESYJjay5hRMyrdHSvMGvVMzFlcOnW7Uw3QSyP7ZbptuwW+3HPtt7pISffkA8+LEfMQEf0rHK4AS4OIDIBH+Eyc3o4JwZOr23FVwAxQnfT16NGVkLyykvfGluA0GlrdJ8x6Sc9ONbTRRu6dK3Sw="
+        }
+    ],
+    "submit-time": "2018-03-23T09:29:47.193113Z",
+    "timestamp-start": "2018-03-23T09:29:46.552577Z",
+    "timestamp-stop": "2018-03-23T09:40:40.552577Z",
+    "trip-id": "bb0dada0-ee1d-4d8b-b94b-c78715314d36_10",
+    "type": "geo-histogram",
+    "vault-id": "0618b188-3ff5-4774-845f-53a9b50d8133",
+    "data": [
+        {
+            "histogram": [
+                52,
+                3,
+                4,
+                3,
+                44,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34131,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                13,
+                2,
+                1,
+                3,
+                7,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34132,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                12,
+                2,
+                30,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34132,
+            "tileY": 21796
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34130,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                6,
+                2,
+                5,
+                4,
+                29,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34130,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                30,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34129,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34128,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34127,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                18,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34126,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                11,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34126,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                30,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34125,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                29,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34124,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                18,
+                1,
+                1,
+                1,
+                2
+            ],
+            "tileX": 34123,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34122,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34121,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34120,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34119,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34118,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34117,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34116,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                2,
+                2,
+                14,
+                1,
+                1,
+                5,
+                0
+            ],
+            "tileX": 34115,
+            "tileY": 21795
+        },
+        {
+            "histogram": [
+                0,
+                4,
+                51,
+                0,
+                3,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34115,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                8,
+                0,
+                6,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34114,
+            "tileY": 21794
+        },
+        {
+            "histogram": [
+                0,
+                0,
+                10,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "tileX": 34115,
+            "tileY": 21793
+        }
+    ],
+}

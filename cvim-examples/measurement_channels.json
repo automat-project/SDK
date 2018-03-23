@@ -1,0 +1,89 @@
+{
+    "1": {
+        "name": "Vehicle Speed",
+        "type": "Time-Series",
+        "data": {
+            "captureRate": "1",
+            "onChange": "No",
+            "sampleStrategy": "LastKnownValue",
+            "dataType": "Double",
+            "signal": {
+                "min": "0",
+                "max": "512",
+                "resolution": "1",
+                "sampleInterval": "differs",
+                "unit": "km/h",
+                "name": "Vehicle speed"
+            }
+        },
+        "dimension": 1
+    },
+    "2": {
+        "name": "Position (Latitude Longitude)",
+        "type": "Time-Series",
+        "data": [
+            {
+                "captureRate": "",
+                "onChange": "Yes",
+                "sampleStrategy": "LastKnownValue",
+                "dataType": "Double",
+                "signal": {
+                    "min": "0,00",
+                    "max": "180,00",
+                    "resolution": "differs",
+                    "sampleInterval": "1.000",
+                    "unit": "°",
+                    "name": "Latitude"
+                }
+            },
+            {
+                "captureRate": "",
+                "onChange": "",
+                "sampleStrategy": "",
+                "dataType": "Double",
+                "signal": {
+                    "min": "0,00",
+                    "max": "180,00",
+                    "resolution": "differs",
+                    "sampleInterval": "1.000",
+                    "unit": "°",
+                    "name": "Longitude"
+                }
+            }
+        ],
+        "dimension": 2
+    },
+    "151": {
+        "name": "Vehicle speed Histogram",
+        "type": "Histogram",
+        "measureType": "Count",
+        "bindata": [
+            {
+                "lowerBound": 0,
+                "upperBound": 512,
+                "binCount": 26,
+                "binScaling": "linear",
+                "signalName": "Vehicle speed",
+                "unit": "km/h"
+            }
+        ],
+        "aggregation": "Count"
+    },
+    "8016": {
+        "name": "Vehicle speed Geo-Histogram ZL 16",
+        "type": "Geo-Histogram",
+        "measureType": "Count",
+        "bindata": [
+            {
+                "lowerBound": 0,
+                "upperBound": 180,
+                "binCount": 10,
+                "binScaling": "linear",
+                "signalName": "Vehicle speed",
+                "unit": "km/h"
+            }
+        ],
+        "aggregation": "Count",
+        "geoResolution": 16
+    }
+}

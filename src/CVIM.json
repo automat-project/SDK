@@ -439,6 +439,31 @@
 				},
 				"data-masking-active": {
 					"type": "boolean"
+				},
+				"signatures":{
+					"type": "array",
+					"items": [
+						{
+							"type": "object",
+							"properties": {
+								"signatory": {
+									"type": "string"
+								},
+								"checksum": {
+									"type": "string"
+								},
+								"signature": {
+									"type": "string"
+								}
+							},
+							"required":[
+								"signatory",
+								"checksum",
+								"signature"
+							],
+							"additionalProperties": false
+						}
+					]
 				}
 			},
 			"required": [
